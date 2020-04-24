@@ -47,7 +47,11 @@ def free_bacon(score):
     assert score < 100, 'The game should be over.'
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    digit_one = score % 10
+    digit_ten = score // 10
+    return 10 - min(digit_one, digit_ten)
     # END PROBLEM 2
+    
 
 
 def take_turn(num_rolls, opponent_score, dice=six_sided):
@@ -65,6 +69,10 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return free_bacon(opponent_score)
+    else:
+        return roll_dice(num_rolls, dice)
     # END PROBLEM 3
 
 
@@ -74,6 +82,19 @@ def is_swap(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
+    def mul_score(curr_score):
+        right = curr_score % 10
+        while curr_score // 100 == 0:
+            if curr_score // 10 == 0:
+                return right * right
+            else:
+                return (curr_score // 10) * right
+        return (curr_score // 100) * right
+    
+    if mul_score(player_score) == mul_score(opponent_score):
+        return True
+    else:
+        return False
     # END PROBLEM 4
 
 
@@ -94,7 +115,7 @@ def silence(score0, score1):
 
 
 def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
-         goal=GOAL_SCORE, say=silence, feral_hogs=True):
+         goal=GOAL_SCORE, say=silence, feral_hogs= True):
     """Simulate a game and return the final scores of both players, with Player
     0's score first, and Player 1's score second.
 
@@ -114,6 +135,35 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     player = 0  # Which player is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    dice_0 = 0
+    dice_1 = 0
+
+    while score0 < goal and score1 < goal:
+        
+        if player == 0:
+            next_dice_0 = strategy0(score0, score1)
+            score0 += take_turn(next_dice_0, score1, dice)
+            if feral_hogs:
+                if abs(dice_0 - next_dice_0) == 2:
+                    score0 += 3
+            dice_0 = next_dice_0
+        
+        else: 
+            next_dice_1 = strategy1(score1, score0)          
+            score1 += take_turn(next_dice_1, score0, dice)
+            if feral_hogs:
+                if abs(dice_1 - next_dice_1) == 2:
+                    score1 += 3
+            dice_1 = next_dice_1
+        
+        if is_swap(score0,score1):
+            score0, score1 = score1, score0
+
+        player = other(player)           
+            
+
+        
+    
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
