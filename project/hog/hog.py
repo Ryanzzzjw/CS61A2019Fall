@@ -253,7 +253,7 @@ def announce_highest(who, previous_high=0, previous_score=0):
             score = score0
         else:
             score = score1
-        
+        #nonlocal previous_high and previous_score
         if score - previous_score > previous_high:
             print(score - previous_score, "point(s)! That's the biggest gain yet for Player", who)
             previous_high = score - previous_score
@@ -302,6 +302,13 @@ def make_averaged(fn, num_samples=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def make_averaged_result(*args):
+        total = 0
+        for i in range (num_samples):
+            total += fn(*args)
+        return total / num_samples
+    return make_averaged_result 
+
     # END PROBLEM 8
 
 
@@ -316,6 +323,17 @@ def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    max_avg_score = 0
+    max_num_of_dice = 0 
+    num_of_dice = 1
+    while num_of_dice < 11 :
+        average_roll_dice = make_averaged(roll_dice, num_samples= 1000)
+        avg_score = average_roll_dice(num_of_dice, dice)
+        if avg_score > max_avg_score:
+            max_avg_score = avg_score
+            max_num_of_dice = num_of_dice
+        num_of_dice += 1
+    return max_num_of_dice
     # END PROBLEM 9
 
 
@@ -340,7 +358,7 @@ def average_win_rate(strategy, baseline=always_roll(4)):
 
 def run_experiments():
     """Run a series of strategy experiments and report results."""
-    if True:  # Change to False when done finding max_scoring_num_rolls
+    if False:  # Change to False when done finding max_scoring_num_rolls
         six_sided_max = max_scoring_num_rolls(six_sided)
         print('Max scoring num rolls for six-sided dice:', six_sided_max)
 
@@ -364,7 +382,10 @@ def bacon_strategy(score, opponent_score, margin=8, num_rolls=4):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 4  # Replace this statement
+    if free_bacon(opponent_score) >= margin:
+        return 0
+    else:
+        return num_rolls
     # END PROBLEM 10
 
 
@@ -374,7 +395,19 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=4):
     non-beneficial swap. Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 4  # Replace this statement
+    bacon_points = free_bacon(opponent_score)
+    total_score = bacon_points + score
+    if is_swap(total_score, opponent_score) and total_score < opponent_score:
+        return 0
+
+    elif bacon_points >= margin:
+        if not (is_swap(total_score, opponent_score) and total_score > opponent_score):
+            return 0
+        else:
+            return num_rolls
+        
+    else:
+        return num_rolls
     # END PROBLEM 11
 
 
