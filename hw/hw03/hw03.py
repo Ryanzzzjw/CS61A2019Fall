@@ -26,6 +26,14 @@ def num_sevens(n):
     True
     """
     "*** YOUR CODE HERE ***"
+    if n < 10:
+        if n == 7:
+            return 1       
+        else:
+            return 0
+    if n % 10 == 7:
+        return 1 + num_sevens(n // 10)
+    return num_sevens(n // 10)
 
 def pingpong(n):
     """Return the nth element of the ping-pong sequence.
@@ -61,6 +69,37 @@ def pingpong(n):
     """
     "*** YOUR CODE HERE ***"
 
+    def helpfn(total, i, step):
+        if n == i:
+            return total
+        if check_seven(i) or i % 7 == 0:
+            return helpfn(total - step, i + 1, step * -1)
+        return helpfn(total + step, i + 1, step)
+    return helpfn(1, 1, 1)
+
+def check_seven(k):
+    if k < 10:
+        if k == 7:
+            return True       
+        else:
+            return False
+    if k % 10 == 7:
+       return True
+    return check_seven(k // 10)
+        
+#alternative solution
+def pingpong_alt(n):
+    if n <= 7:
+        return n
+    return pingpong_alt(n) + direction(n)
+
+def direction(n):
+    if n < 7:
+        return 1
+    if (n - 1) % 7 == 0 or num_sevens(n - 1) > 0:
+        return -1 * direction(n - 1)
+    return direction(n - 1)
+    
 def count_change(amount):
     """Return the number of ways to make change for amount.
 
