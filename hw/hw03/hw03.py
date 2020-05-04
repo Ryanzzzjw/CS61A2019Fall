@@ -117,6 +117,16 @@ def count_change(amount):
     True
     """
     "*** YOUR CODE HERE ***"
+    def count_partitions(amount, smallest_coin):
+        if amount == 0:
+            return 1
+        if smallest_coin > amount:
+            return 0
+        with_coin = count_partitions(amount - smallest_coin, smallest_coin)
+        without_coin = count_partitions(amount, smallest_coin * 2)
+        return with_coin + without_coin
+    return count_partitions(amount, 1)
+
 
 
 def flatten(lst):
@@ -136,6 +146,13 @@ def flatten(lst):
     [[1, [1, 1]], 1, [1, 1]]
     """
     "*** YOUR CODE HERE ***"
+    new_list = []
+    for i in lst:
+        if type(i) == list:
+            new_list += flatten(i)
+        else:
+            new_list += [i]
+    return new_list
 
 ###################
 # Extra Questions #
@@ -174,6 +191,13 @@ def move_stack(n, start, end):
     """
     assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
     "*** YOUR CODE HERE ***"
+    if n == 1:
+        print_move(start, end)
+    else:
+        middle = 6 - start - end
+        move_stack(n - 1, start, middle)
+        print_move(start, end)
+        move_stack(n - 1, middle, end)
 
 from operator import sub, mul
 
@@ -187,4 +211,6 @@ def make_anonymous_factorial():
     >>> check(HW_SOURCE_FILE, 'make_anonymous_factorial', ['Assign', 'AugAssign', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return (lambda f: lambda k: f(f, k))(lambda f, k: k if k == 1 else mul(k, f(f, sub(k, 1))))
+    #alternative solution:
+    #return (lambda f: f(f))(lambda f: lambda x: 1 if x == 0 else x * f(f)(x - 1))
