@@ -99,6 +99,13 @@ def autocorrect(user_word, valid_words, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    if user_word in valid_words:
+        return user_word
+
+    result_word = min(valid_words, key = lambda word:diff_function(user_word, word,limit)) 
+    if diff_function(user_word, result_word, limit) > limit:
+        return user_word
+    return result_word
     # END PROBLEM 5
 
 
@@ -108,29 +115,45 @@ def swap_diff(start, goal, limit):
     their lengths.
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    # assert False, 'Remove this line'
+    if len(start) == 0 or len(goal) == 0:
+        return abs(len(start) - len(goal))
+    elif limit < 0:
+        return 1
+    elif start[0] != goal[0]:
+        diff = swap_diff(start[1:], goal[1:], limit - 1) + 1
+    else:
+        diff = swap_diff(start[1:], goal[1:], limit)
+    return diff
     # END PROBLEM 6
 
 def edit_diff(start, goal, limit):
     """A diff function that computes the edit distance from START to GOAL."""
-    assert False, 'Remove this line'
+    #assert False, 'Remove this line'
 
-    if ______________: # Fill in the condition
+    if len(start) == 0 or len(goal) == 0: # Fill in the condition
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return max(len(start), len(goal))
         # END
 
-    elif ___________: # Feel free to remove or add additional cases
+    elif limit < 0:
+        return 1
+
+    elif start[0] == goal[0]: # Feel free to remove or add additional cases
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return edit_diff(start[1:], goal[1:], limit)
         # END
 
     else:
-        add_diff = ...  # Fill in these lines
-        remove_diff = ... 
-        substitute_diff = ... 
+        add_diff = edit_diff(start, goal[1:], limit - 1)   # Fill in these lines
+        remove_diff = edit_diff(start[1:], goal, limit - 1) 
+        substitute_diff = edit_diff(start[1:], goal[1:], limit - 1)
+        diff = min(add_diff, remove_diff, substitute_diff)
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return diff + 1
         # END
 
 
@@ -150,6 +173,15 @@ def report_progress(typed, prompt, id, send):
     """Send a report of your id and progress so far to the multiplayer server."""
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    num_correct = 0
+    for i in range(min(len(typed), len(prompt))):
+        if typed[i] == prompt[i]:
+            num_correct += 1
+        else:
+            break
+    progress = num_correct / len(prompt)
+    send({'id': id, 'progress': progress})
+    return progress
     # END PROBLEM 8
 
 
@@ -171,6 +203,14 @@ def fastest_words(word_times, margin=1e-5):
     assert margin > 0
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    fastest_words = [[] for _ in range(n_players)]
+    for j in range(1, n_words + 1):
+        cur_word = word(word_times[0][j])
+        min_diff = min([elapsed_time(player[j]) - elapsed_time(player[j - 1]) for player in word_times])
+        for i in range(n_players):
+            if elapsed_time(word_times[i][j]) - elapsed_time(word_times[i][j - 1]) - min_diff <= margin:
+                fastest_words[i].append(cur_word)
+    return fastest_words
     # END PROBLEM 9
 
 
