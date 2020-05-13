@@ -245,6 +245,19 @@ def make_fib():
     True
     """
     "*** YOUR CODE HERE ***"
+    a = 0
+    b = 1
+    n = 0
+    def fib_helper():
+        nonlocal a, b, n
+        if n < 2:
+            n += 1
+            return n - 1
+        else:
+            result = a + b
+            a, b = b, result
+            return result
+    return fib_helper
 
 def make_withdraw(balance, password):
     """Return a password-protected withdraw function.
@@ -275,6 +288,23 @@ def make_withdraw(balance, password):
     True
     """
     "*** YOUR CODE HERE ***"
+    attempts = []
+    def withdraw(amount, pwd):
+        nonlocal balance, attempts
+        if len(attempts) >= 3:
+            return 'Your account is locked. Attempts: ' + str(attempts)
+        elif pwd == password:
+            if amount > balance:
+                return 'Insufficient funds'
+            else:
+                balance = balance - amount
+                return balance
+        else:
+            attempts.append(pwd)
+            return 'Incorrect password'
+    return withdraw
+
+
 
 def make_joint(withdraw, old_password, new_password):
     """Return a password-protected withdraw function that has joint access to
@@ -315,6 +345,16 @@ def make_joint(withdraw, old_password, new_password):
     "Your account is locked. Attempts: ['my', 'secret', 'password']"
     """
     "*** YOUR CODE HERE ***"
+    def joint_withdraw(amount, pwd):
+        if pwd == new_password or pwd == old_password:
+            return withdraw(amount, old_password)
+        else:
+            return withdraw(amount, pwd)
+    result = withdraw(0, old_password)
+    if type(result) == int:
+        return joint_withdraw
+    else:
+        return result
 
 
 
@@ -394,10 +434,12 @@ def interval(a, b):
 def lower_bound(x):
     """Return the lower bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[0]
 
 def upper_bound(x):
     """Return the upper bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[1]
 
 def str_interval(x):
     """Return a string representation of interval x.
@@ -414,22 +456,28 @@ def add_interval(x, y):
 def mul_interval(x, y):
     """Return the interval that contains the product of any value in x and any
     value in y."""
-    p1=x[0] * y[0]
-    p2=x[0] * y[1]
-    p3=x[1] * y[0]
-    p4=x[1] * y[1]
-    return [min(p1, p2, p3, p4), max(p1, p2, p3, p4)]
+    p1=lower_bound(x) * lower_bound(y)
+    p2=lower_bound(x) * upper_bound(y)
+    p3=upper_bound(x) * lower_bound(y)
+    p4=upper_bound(x) * upper_bound(y)
+    return interval(min(p1, p2, p3, p4), max(p1, p2, p3, p4))
 
 def sub_interval(x, y):
     """Return the interval that contains the difference between any value in x
     and any value in y."""
     "*** YOUR CODE HERE ***"
+    p1=lower_bound(x) - lower_bound(y)
+    p2=lower_bound(x) - upper_bound(y)
+    p3=upper_bound(x) - lower_bound(y)
+    p4=upper_bound(x) - upper_bound(y)
+    return interval(min(p1, p2, p3, p4), max(p1, p2, p3, p4))
 
 def div_interval(x, y):
     """Return the interval that contains the quotient of any value in x divided by
     any value in y. Division is implemented as the multiplication of x by the
     reciprocal of y."""
     "*** YOUR CODE HERE ***"
+    assert upper_bound(y) * lower_bound(y) > 0, 'Cannot divide by an interval that spans zero'
     reciprocal_y=interval(1/upper_bound(y), 1/lower_bound(y))
     return mul_interval(x, reciprocal_y)
 
@@ -455,3 +503,11 @@ def quadratic(x, a, b, c):
     '0 to 10'
     """
     "*** YOUR CODE HERE ***"
+    p1 = a * lower_bound(x) ** 2 + b * lower_bound(x) + c
+    p2 = a * upper_bound(x) ** 2 + b * upper_bound(x) + c
+    if a != 0 and -b / (2 * a) < upper_bound(x) and -b / (2 * a) > lower_bound(x):
+        q = -b / (2 * a)
+        p3 = a * q ** 2 + b * q + c
+        return interval(min(p1, p2, p3), max(p1, p2, p3))
+    else:
+        return interval(min(p1, p2), max(p1, p2))
